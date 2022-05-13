@@ -13,13 +13,12 @@
 
 #include <opencv2/opencv.hpp>
 
-
 class CCamera {
     public:
         CCamera(const std::string& name);
         ~CCamera() = default;
 
-        bool ReadImage(const std::string& fileName);
+        bool ReadImage(const std::string& fileName, cv::Mat K_cam, cv::Mat D_cam);
     
     public:
         std::string  m_name;

@@ -8,7 +8,12 @@ CCamera::CCamera(const string& name) : m_name(name) {
 
 }
 
-bool CCamera::ReadImage(const string& fileName) {
+bool CCamera::ReadImage(const string& fileName, cv::Mat K_cam, cv::Mat D_cam) {
     m_image = cv::imread(fileName);
-    return !m_image.empty();
+    if(m_image.empty()) return false;
+
+    cv::Mat undistort_img; // = image.clone();
+    cv::undistort(m_image, undistort_img, K_cam, D_cam);
+    m_image = undistort_img;
+    return true;
 }

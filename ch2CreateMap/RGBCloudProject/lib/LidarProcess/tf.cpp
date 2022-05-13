@@ -12,10 +12,16 @@ bool CTF::Read(const std::string & fileName) {
         return false;
     }
 
-    cv::Mat T_vechicle_lidar_; //lidar to vechicle
     T_vechicle_lidar_= ReadTf4x4(fsSettings, "T_vechicle_lidar");
 
-    //ToDo:
+    ReadCameraTf( fsSettings, "T_vechicle_front_camera",      "K_front_camera",      "D_front_camera",
+        T_front_camera_lidar_,      K_cam_front_camera_,      D_cam_front_camera_);
+    
+    ReadCameraTf( fsSettings, "T_vechicle_left_back_camera",  "K_left_back_camera",  "D_left_back_camera",
+        T_left_back_camera_lidar_,  K_cam_left_back_camera_,  D_cam_left_back_camera_);
+
+    ReadCameraTf( fsSettings, "T_vechicle_right_back_camera", "K_right_back_camera", "D_right_back_camera",
+        T_right_back_camera_lidar_, K_cam_right_back_camera_, D_cam_right_back_camera_);
     return true;
 }
 
@@ -41,4 +47,17 @@ cv::Mat CTF::ReadTf4x4( cv::FileStorage &fs, const std::string &section )
     cv::Mat T_final;
     cv::eigen2cv(T_temp, T_final);
     return T_final;
+}
+
+//ToDo: 弄明白座标变换
+void CTF::ReadCameraTf( cv::FileStorage &fsSettings, const std::string &section, const std::string &kCam, const std::string &dCam,
+    cv::Mat& T_front_camera_lidar_, cv::Mat& K_cam_front_camera_, cv::Mat& D_cam_front_camera_) 
+{
+    cv::Mat T_vechicle_front_camera_ = ReadTf4x4(fsSettings, section);
+    fsSettings[kCam] >> K_cam_front_camera_;
+    fsSettings[dCam] >> D_cam_front_camera_;
+
+    cv::Mat T_front_camera_vechicle;
+    cv::invert(T_vechicle_front_camera_, T_front_camera_vechicle);
+    T_front_camera_lidar_ =  T_front_camera_vechicle * T_vechicle_lidar_;
 }

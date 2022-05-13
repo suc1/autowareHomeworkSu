@@ -13,14 +13,14 @@
 
 #include <pcl/common/common.h>
 
-
 class CLidar {
     public:
         CLidar();
         ~CLidar() = default;
 
         bool ReadPcd(const std::string& fileName);
-    
+        void SavePcd(const std::string& filePath, int num);
     public:
-        pcl::PointCloud< pcl::PointXYZ >::Ptr  m_pclPtr;
+        pcl::PointCloud< pcl::PointXYZ >::Ptr     m_pclPtr[3]; //front, left, right
+        pcl::PointCloud< pcl::PointXYZRGB >::Ptr  m_pclRGBPtr;
 };
