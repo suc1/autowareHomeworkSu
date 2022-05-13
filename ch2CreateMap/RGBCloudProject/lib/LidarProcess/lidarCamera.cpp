@@ -14,7 +14,21 @@ namespace std {
 	};
 };
 
-bool CLidarCamera::Fusion(int num) {
+bool CLidarCamera::Fusion(size_t num) {
+    std::vector<cv::String> lidar_pathes;
+    std::vector<cv::String> front_camera_img_pathes;
+    std::vector<cv::String> left_back_camera_img_pathes;
+    std::vector<cv::String> right_back_camera_img_pathes;
+
+    cv::glob("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/apollo/lidar/*.pcd", lidar_pathes);
+    cv::glob("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/apollo/front_camera/*.jpg", front_camera_img_pathes);
+    cv::glob("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/apollo/left_back_camera/*.jpg", left_back_camera_img_pathes);
+    cv::glob("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/apollo/right_back_camera/*.jpg", right_back_camera_img_pathes);
+    assert(lidar_pathes.size()                 >= num);
+    assert(front_camera_img_pathes.size()      >= num);
+    assert(left_back_camera_img_pathes.size()  >= num);
+    assert(right_back_camera_img_pathes.size() >= num);
+
     CTF tf;
     //"~/autowareHomeworkSu/" fail
     if(!tf.Read("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/config/sensors_calib_apollo.yml")) {
@@ -22,33 +36,35 @@ bool CLidarCamera::Fusion(int num) {
     }
 
     CLidar lidar;
-    if(!lidar.ReadPcd("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/apollo/lidar/11673.pcd")) {
-        return false;
-    }
-
     CCamera front("T_vechicle_front_camera");
-    if(!front.ReadImage("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/apollo/front_camera/1571647370_656743.jpg",
-        tf.K_cam_front_camera_, tf.D_cam_front_camera_)) {
-        return false;
-    }
-
     CCamera left("T_vechicle_left_back_camera");
-    if(!left.ReadImage("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/apollo/left_back_camera/1571647370_631318.jpg",
-        tf.K_cam_left_back_camera_, tf.D_cam_left_back_camera_)) {
-        return false;
-    }
-
     CCamera right("T_vechicle_right_back_camera");
-    if(!right.ReadImage("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/apollo/right_back_camera/1571647370_631298.jpg",
-        tf.K_cam_right_back_camera_, tf.D_cam_right_back_camera_)) {
+
+    for(size_t i=0; i<num; ++i) {
+        std::cout << "Processing " << i << std::endl;
+        if(!lidar.ReadPcd(lidar_pathes[i])) {
+            return false;
+        }
+
+        if(!front.ReadImage(front_camera_img_pathes[i],      tf.K_cam_front_camera_,      tf.D_cam_front_camera_)) {
+            return false;
+        }
+    
+        if(!left.ReadImage(left_back_camera_img_pathes[i],   tf.K_cam_left_back_camera_,  tf.D_cam_left_back_camera_)) {
+            return false;
+        }
+
+        if(!right.ReadImage(right_back_camera_img_pathes[i], tf.K_cam_right_back_camera_, tf.D_cam_right_back_camera_)) {
         return false;
+        }
+
+        lidar.m_pclRGBPtr->points.clear();
+        CloudFusionRGB(lidar.m_pclPtr[0], front.m_image, tf.T_front_camera_lidar_,      tf.K_cam_front_camera_,     tf.D_cam_front_camera_,      lidar.m_pclRGBPtr);
+        CloudFusionRGB(lidar.m_pclPtr[1], left.m_image,  tf.T_left_back_camera_lidar_,  tf.K_cam_left_back_camera_, tf.D_cam_left_back_camera_,  lidar.m_pclRGBPtr);
+        CloudFusionRGB(lidar.m_pclPtr[2], right.m_image, tf.T_right_back_camera_lidar_, tf.K_cam_right_back_camera_,tf.D_cam_right_back_camera_, lidar.m_pclRGBPtr);
+
+        lidar.SavePcd("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/saved_rgb_clouds/", i);
     }
-
-    CloudFusionRGB(lidar.m_pclPtr[0], front.m_image, tf.T_front_camera_lidar_,      tf.K_cam_front_camera_,     tf.D_cam_front_camera_,      lidar.m_pclRGBPtr);
-    CloudFusionRGB(lidar.m_pclPtr[1], left.m_image,  tf.T_left_back_camera_lidar_,  tf.K_cam_left_back_camera_, tf.D_cam_left_back_camera_,  lidar.m_pclRGBPtr);
-    CloudFusionRGB(lidar.m_pclPtr[2], right.m_image, tf.T_right_back_camera_lidar_, tf.K_cam_right_back_camera_,tf.D_cam_right_back_camera_, lidar.m_pclRGBPtr);
-
-    lidar.SavePcd("/home/cheng/autowareHomeworkSu/ch2CreateMap/RGBCloudProject/data/saved_rgb_clouds/", 0);
     return true;
 }
 

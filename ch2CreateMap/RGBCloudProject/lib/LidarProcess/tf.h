@@ -23,6 +23,7 @@ class CTF {
         void ReadCameraTf( cv::FileStorage &fsSettings, const std::string &section, const std::string &kCam, const std::string &dCam,
                 cv::Mat& T_front_camera_lidar_, cv::Mat& K_cam_front_camera_, cv::Mat& D_cam_front_camera_);
     public:
+        //ToDo: Perfect???
         cv::Mat m_lidar2CameraFront;
         cv::Mat m_lidar2CameraLeft;
         cv::Mat m_lidar2CameraRight;

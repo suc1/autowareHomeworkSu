@@ -18,7 +18,7 @@ class CLidarCamera {
         CLidarCamera() = default;
         ~CLidarCamera() = default;
 
-        bool Fusion(int num);
+        bool Fusion(size_t num);
     private:
         void CloudFusionRGB(pcl::PointCloud< pcl::PointXYZ >::Ptr in_cloud_ptr, 
                 cv::Mat undistort_img,

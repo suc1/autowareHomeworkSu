@@ -19,7 +19,7 @@ class CLidar {
         ~CLidar() = default;
 
         bool ReadPcd(const std::string& fileName);
-        void SavePcd(const std::string& filePath, int num);
+        void SavePcd(const std::string& filePath, size_t num);
     public:
         pcl::PointCloud< pcl::PointXYZ >::Ptr     m_pclPtr[3]; //front, left, right
         pcl::PointCloud< pcl::PointXYZRGB >::Ptr  m_pclRGBPtr;

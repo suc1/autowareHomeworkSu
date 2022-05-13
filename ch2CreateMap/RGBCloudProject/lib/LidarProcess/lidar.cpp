@@ -23,16 +23,23 @@ bool CLidar::ReadPcd(const string& fileName) {
         return false;
     }
 
+    for (size_t i=0; i<_countof(m_pclPtr); ++i) m_pclPtr[i]->points.clear();
+
     for( size_t i=0; i<allPtr->points.size(); ++i) {
         pcl::PointXYZ p = allPtr->points[i];
-        if(p.x >= 0) m_pclPtr[0]->points.push_back(p);
+        if(p.x >= 0)   m_pclPtr[0]->points.push_back(p);
         else if(p.y>0) m_pclPtr[1]->points.push_back(p);
-        else m_pclPtr[2]->points.push_back(p);
+        else           m_pclPtr[2]->points.push_back(p);
     }
     return true;
 }
 
-void CLidar::SavePcd(const std::string& filePath, int num) {
+void CLidar::SavePcd(const std::string& filePath, size_t num) {
+    std::cout << "width = " << m_pclRGBPtr->width << " height = " << m_pclRGBPtr->height
+        <<" point =" << m_pclRGBPtr->points.size() << std::endl;
+    //ToDo: why are different???
+    m_pclRGBPtr->width = m_pclRGBPtr->points.size();
+
     std::string saved_path = filePath + "/rgb_pcd_" + std::to_string(num) + ".pcd";
     pcl::io::savePCDFileASCII(saved_path, *m_pclRGBPtr);
 }
