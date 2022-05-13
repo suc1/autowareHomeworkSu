@@ -32,4 +32,10 @@ void cv::undistort	(	InputArray 	src,
 Eigen!!!!
 pcl!!!!!!
 =====
+2. mapping
+---
+老师的思路是传入PointXYZRGB, 在NdtMapping::NdtFrameMatch()中，以新形成的PointXYZ处理.
+当要插入PointXYZ地图，颜色地图插入PointXYZRGB.
+
+更好的方法是NDT底层直接处理PointXYZRGB
 
