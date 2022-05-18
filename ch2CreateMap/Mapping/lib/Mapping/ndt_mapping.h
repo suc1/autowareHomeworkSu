@@ -52,14 +52,6 @@
 
 #include <NormalDistributionsTransform.h>
 
-class SubMap
-{
-public:
-    SubMap();
-    ~SubMap();
-
-};
-
 struct LidarFrame
 {
     std::string time_stamp;
@@ -68,7 +60,7 @@ struct LidarFrame
     Eigen::Matrix4f T_map_lidar; //lidar to map
 };
 
-struct Pose
+struct pose
 {
     double x;
     double y;
@@ -93,13 +85,15 @@ class NdtMapping
 {
 public:
     NdtMapping();
-    ~NdtMapping();
+    ~NdtMapping() = default;
     void CreateNdtRgbMap(std::vector<cv::String> lidar_pathes);
 
 
 private:
+    int  LoadPCDFile (const std::string &file_name, pcl::PointCloud<pcl::PointXYZRGB> &cloud);
     void ReadLidarFrames(std::vector<cv::String> lidar_pathes);
-    void NdtFrameMatch(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cur_frame_rgb, double time_s);
+    //ret: adopt this frame
+    bool NdtFrameMatch(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cur_frame_rgb, double time_s);
     double calcDiffForRadian(const double lhs_rad, const double rhs_rad);
     void CreateMapBasedLidarFrames(std::vector<LidarFrame> &lidar_frames);
 
@@ -110,30 +104,30 @@ private:
     
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr map_rgb_ptr_;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr map_rgb_filtered_ptr_;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr_;
+    pcl::PointCloud<pcl::PointXYZ> map;
     pcl::PointCloud<pcl::PointXYZ>::Ptr map_filtered_ptr_;
-    cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> cpu_ndt_;
+    cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> anh_ndt; //cpu_ndt_
 
     double pre_time_stamp_;
     
     //global variable pose
-    Pose previous_pose_;
-    Pose diff_pose_;
-    Pose guess_pose_;
-    Pose add_pose_; //the pose of frame will insert a map
+    pose diff_pose;
+    pose previous_pose, guess_pose, current_pose, ndt_pose, added_pose;
+    double diff_x = 0.0, diff_y = 0.0, diff_z = 0.0, diff_yaw;  // current_pose - previous_pose
 
     //config
-    double min_scan_range_ = 5.0;
-    double max_scan_range_ = 200.0;
+    const double min_scan_range = 5.0;
+    const double max_scan_range = 200.0;
+    const double min_add_scan_shift = 5.0;
 
-    double voxel_leaf_size_ = 2.0;
+    double voxel_leaf_size = 2.0;
 
-    int max_iter_ = 30;        // Maximum iterations
-    float ndt_res_ = 1.0;      // Resolution
-    double step_size_ = 0.1;   // Step size
-    double trans_eps_ = 0.01;  // Transformation epsilon
+    const int max_iter = 30;        // Maximum iterations
+    const float ndt_res = 1.0;      // Resolution
+    const double step_size = 0.1;   // Step size
+    const double trans_eps = 0.01;  // Transformation epsilon
 
     double min_add_scan_shift_ = 1.0;
 };
 
-#endif NDT_MAPPING_H
+#endif //NDT_MAPPING_H
