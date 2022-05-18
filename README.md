@@ -23,3 +23,4 @@ make
 2. 效果图: ~/autowareHomeworkSu/ch2CreateMap/Mapping/ch2Result-map.png
 3. 存在问题1: 老师输出9个子图，而我只输出1个子图，原因是Lidar因为靠近被丢弃???
 
+
