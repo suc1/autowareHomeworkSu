@@ -23,4 +23,25 @@ make
 2. 效果图: ~/autowareHomeworkSu/ch2CreateMap/Mapping/ch2Result-map.png
 3. 存在问题1: 老师输出9个子图，而我只输出1个子图，原因是Lidar因为靠近被丢弃???
 
+## Ch3-Gnss align addition map
+```
+#要先编译 "gnss" & "ndt_cpu", 最后编译 "gnss_projection"
+# Move "gnss_projection" to another folder
+cd ch3Localize
+catkin_make -DCATKIN_WHITELIST_PACKAGES="gnss_projection"
+
+# Restore "gnss_projection" to ~
+catkin_make -DCATKIN_WHITELIST_PACKAGES="gnss_projection"
+
+source ./devel/setup.bash
+roslaunch  gnss_projection  gnss_projection.launch
+
+cd ~/autoware.ai/relative_files
+rosbag play sample_moriyama_150324.bag
+```
+1. 存在问题: 工程文件的依赖问题，CMake???
+2. 存在问题: 一开始点云比老师的稠密
+3. 存在问题: 看不出粗匹配和精匹配差异
+4. 存在问题: 一开始点云基本对，但是经过Rebase，出现偏移!!!!
+
 
