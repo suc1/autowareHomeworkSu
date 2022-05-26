@@ -44,4 +44,31 @@ rosbag play sample_moriyama_150324.bag
 3. 存在问题: 看不出粗匹配和精匹配差异
 4. 存在问题: 一开始点云基本对，但是经过Rebase，出现偏移!!!!
 
+## Ch4 项目练习3: 基于欧式聚类的车辆分割
+```
+//滤波、切割、去地面、聚类、可视化的顺序来进行
+//入口函数:
+void velodyne_callback(const sensor_msgs::PointCloud2ConstPtr& in_sensor_cloud)
 
+//去掉邻近的点云
+void removePointsUpTo()
+
+//降采样
+void downsampleCloud()
+
+//高度裁减
+void clipCloud()
+
+//仅仅关注lane范围内的点云，相当于对点云左右进行裁减
+void keepLanePoints()
+
+//移除地面
+void removeFloor()
+
+//采用差分法线特征算法再对点云进行一次过滤
+void differenceNormalsSegmentation()
+
+//正式进入欧式聚类的接口
+void segmentByDistance()
+
+```
